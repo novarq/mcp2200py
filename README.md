@@ -26,6 +26,18 @@ Fedora system, then unplug/replug the device (or reload udev rules):
 SUBSYSTEM=="hidraw", ATTRS{idVendor}=="04d8", ATTRS{idProduct}=="00df", TAG+="uaccess"
 ```
 
+Linux 6.8 and later ship `hid_mcp2200`, a GPIO driver that binds to the
+MCP2200's HID interface. While it is loaded there is no `/dev/hidrawN` for
+the device, and `hid-generic` will not take the interface over. Blacklist
+the module, then unplug/replug the device:
+
+```sh
+echo 'blacklist hid_mcp2200' | sudo tee /etc/modprobe.d/mcp2200.conf
+sudo rmmod hid_mcp2200
+```
+
+The serial port is a separate `cdc_acm` interface and is not affected.
+
 The utility first tries HIDAPI and, if its libusb backend cannot claim the
 composite device's HID interface, automatically falls back to the matching
 Linux `hidraw` node.
